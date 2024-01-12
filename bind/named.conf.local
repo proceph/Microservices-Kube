@@ -1,0 +1,15 @@
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+
+zone "startup.fr" {
+	type master;
+	file "/etc/bind/db.startup.fr";
+	allow-update { none; };
+};
+
+zone "10.168.192.in-addr.arpa" {
+	type master;
+	file "/etc/bind/rev.startup.fr";
+	allow-update { none; };
+};

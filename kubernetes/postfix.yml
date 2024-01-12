@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: postfix
+  name: postfix
+spec:
+  selector:
+    matchLabels:
+      app: postfix
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: postfix
+    spec:
+      containers:
+      - image: alexisblgnd/microservices:postfix
+        name: postfix
+        ports:
+          - containerPort: 25
+            hostPort: 25
+        resources:
+          requests:
+            cpu: "100m"
+          limits:
+            cpu: "200m"
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: smtp-scaling
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: postfix
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 5

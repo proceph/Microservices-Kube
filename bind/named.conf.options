@@ -1,0 +1,14 @@
+options {
+	directory "/var/cache/bind";
+
+	forwarders {
+		1.1.1.1;
+		1.0.0.1;
+	};
+
+	dnssec-validation no;
+
+	listen-on port 53 { any; };
+
+	allow-query { any; };
+};

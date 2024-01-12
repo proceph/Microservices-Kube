@@ -1,0 +1,150 @@
+version: '3.8'
+
+services:
+  wordpress:
+    build: ./wordpress/
+    deploy:
+      restart_policy:
+        condition: any
+    container_name: wordpress
+    volumes:
+      - wp-data:/var/www/html/wordpress/wp-content:rw
+    expose:
+      - 80
+    depends_on:
+      - mariadb
+    networks:
+      - db-network
+      - containers-network
+
+  mariadb:
+    build: ./mariadb/
+    deploy:
+      restart_policy:
+        condition: any
+    container_name: mariadb
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    expose:
+      - 3306
+    networks:
+      - db-network
+
+  nginx:
+    build: ./nginx/
+    deploy:
+      restart_policy:
+        condition: any
+    container_name: nginx
+    volumes:
+      - ./html/:/var/www/html/:ro
+      - ./conf/:/etc/nginx/:ro
+      - certbot-data:/var/www/certbot/:ro
+      - letsencrypt-data:/etc/certs/:ro
+      - nginx-log-data:/var/log/nginx:rw
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - containers-network
+      - bridge-network
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    volumes:
+      - certbot-data:/var/www/certbot/:rw
+      - letsencrypt-data:/etc/letsencrypt/:rw
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    deploy:
+      restart_policy:
+        condition: any
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/ # Automatically configure datasources
+      - grafana_vol:/var/lib/grafana # Volume to persist configuration between restarts
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=tputbm
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_HTTP_PORT=3000
+      - GF_SERVER_PROTOCOL=http
+      - GF_SERVER_DOMAIN=sv50.yolopix.net
+      - GF_SERVER_ROOT_URL=http://sv50.yolopix.net/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    expose:
+      - 3000
+    networks:
+      - containers-network
+
+  loki:
+    image: grafana/loki:latest
+    deploy:
+      restart_policy:
+        condition: any
+    container_name: loki
+    volumes:
+      - ./conf/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+    command: -config.file=/etc/loki/loki-config.yaml
+    expose:
+      - 3100
+    networks:
+      - containers-network
+
+  promtail:
+    image:  grafana/promtail:latest
+    deploy:
+      restart_policy:
+        condition: any
+    container_name: promtail
+    volumes:
+      - ./conf/promtail.yaml:/etc/promtail/promtail.yaml:ro
+      - nginx-log-data:/var/log/nginx/:ro
+    command: -config.file=/etc/promtail/promtail.yaml
+    depends_on:
+      - loki
+    networks:
+      - containers-network
+
+  postfix:
+    build: ./smtp/
+    deploy:
+      restart_policy:
+        condition: any
+    container_name: postfix
+    ports:
+      - 25:25
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest
+    deploy:
+      restart_policy:
+        condition: any
+    command: -H unix:///var/run/docker.sock
+    expose:
+      - 9000
+    environment:
+      - VIRTUAL_HOST=sv50.yolopix.net
+    volumes:
+      - data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - containers-network
+
+volumes:
+  grafana_vol:
+  data:
+  mariadb-data:
+  wp-data:
+  certbot-data:
+  letsencrypt-data:
+  nginx-log-data:
+
+networks:
+  containers-network:
+  db-network:
+  bridge-network:
+    driver: bridge

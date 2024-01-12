@@ -1,0 +1,22 @@
+$TTL	3600
+$ORIGIN 20.168.192.in-addr.arpa.
+
+@	IN	SOA	dns1.startup.fr.	admin.startup.fr.	6	3600	86400	2419200	3600
+
+	IN	NS	dns1.startup.fr.
+	IN	NS	dns2.startup.fr.
+
+2	IN	PTR	firewall.startup.fr.
+3	IN	PTR	docker-server.startup.fr
+4	IN	PTR	dns1.startup.fr.
+5	IN	PTR	dns2.startup.fr.
+6	IN	PTR	kube-master.startup.fr.
+22	IN	PTR	ha1.startup.fr.
+23	IN	PTR	ha2.startup.fr.
+24	IN	PTR	kube-master-1.startup.fr.
+25	IN	PTR	kube-master-2.startup.fr.
+26	IN	PTR	kube-master-3.startup.fr.
+27	IN	PTR	kube-worker-1.startup.fr.
+28	IN	PTR	kube-worker-2.startup.fr.
+29	IN	PTR	kube-worker-3.startup.fr.
+30	IN	PTR	ha-virtual-ip.startup.fr.

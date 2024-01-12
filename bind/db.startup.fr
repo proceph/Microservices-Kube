@@ -1,0 +1,28 @@
+$TTL	3600
+$ORIGIN startup.fr.
+
+@	IN	SOA	dns1.startup.fr.	admin.startup.fr.	4	3600	86400	2419200	3600
+
+@	IN	NS	dns1.startup.fr.
+@	IN	NS	dns2.startup.fr.
+
+firewall	IN	A	192.168.20.2
+docker-server	IN	A	192.168.20.3
+dns1       IN	A	192.168.20.4
+dns2       IN	A	192.168.20.5
+kube-master	IN	A	192.168.20.6
+ha1	IN	A	192.168.20.22
+ha2	IN	A	192.168.20.23
+kube-master-1	IN	A	192.168.20.24
+kube-master-2	IN	A	192.168.20.25
+kube-master-3	IN	A	192.168.20.26
+kube-worker-1	IN	A	192.168.20.27
+kube-worker-2	IN	A	192.168.20.28
+kube-worker-3	IN	A	192.168.20.29
+ha-virtual-ip	IN	A	192.168.20.30
+
+@	IN	MX	1	ha-virtual-ip.startup.fr.
+
+_domainkey	1	IN	TXT	"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtxTPfGRZHSig7zgylkCUTqIts0NTczH/1ZGDgzhymWfMxXVPhnci2VHmmfDZiQx3W6ubJdNW/+1Yw6OVJfNhzBLJWkaUpamHIE9WGpFMQVek844wHum/9Xl8nVbmKpgGaq8s2ftMs55xaQXZPjSCz5Qvtp/DNKaDr22WxMoRhCDX8AMxR5EeXFKT5AhdY19gAbTXeu7G6gclJcYE60izgS9yRlwJxsJwxJy0F7hP+TUMxbzuyqcWMREPlvt6xgy0KWiMjQNBuZj+kTaxFJ3rPbwsiA00Nhu/3EEAXOAsmgQ5P2TBeOp9Hak/1FrC4uXjwZxhHmnx5V524ThtTQCCfwIDAQAB"
+@	1	IN	TXT	"v=spf1 a mx ~all"
+_dmarc	1	IN	TXT	"v=DMARC1; p=quarantine; rua=mailto:rua@startup.fr; ruf=mailto:ruf@startup.fr"
